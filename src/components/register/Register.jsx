@@ -1,6 +1,8 @@
 import React, { useState } from "react";
-import { createUserWithEmailAndPassword, getAuth } from "firebase/auth";
+import { createUserWithEmailAndPassword, getAuth, sendEmailVerification } from "firebase/auth";
 import app from "../../firebase.config";
+import { Link } from "react-router-dom";
+import { Alert } from "bootstrap";
 
 const auth = getAuth(app);
 
@@ -21,6 +23,9 @@ const Register = () => {
     setError("");
     const password = event.target.password.value;
     const email = event.target.email.value;
+
+
+
     if (! /(?=.*[A-Z])/.test(password)) {
       setError("please add at least one upper case");
       return;
@@ -38,17 +43,24 @@ const Register = () => {
     
     createUserWithEmailAndPassword(auth, email, password)
       .then((result) => {
-        const user = result.user;
+        const loggedUser = result.user;
+        emailVerification(result.user)
         setSuccess("user has been created successfully");
         setError("");
         event.target.reset();
-        console.log(user);
+        console.log(loggedUser);
       })
       .catch((error) => {
         console.error(error.message);
         setError(error.message);
       });
   };
+  const emailVerification = user =>{
+    sendEmailVerification(user)
+    .then(result =>{
+      alert('please verify your email address')
+    })
+  }
 
 
   return (
@@ -80,6 +92,7 @@ const Register = () => {
         <br />
         <p className="text-success">{success}</p>
       </form>
+      <p><small>Already have an account ??? please <Link to='/login'>Login</Link> </small></p>
     </div>
   );
 };
