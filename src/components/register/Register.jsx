@@ -30,6 +30,10 @@ const Register = () => {
       setError("please add at least 2 digit");
       return;
     }
+    else if (password.length<6){
+      setError('password should be at least 8 character')
+      return;
+    }
 
     
     createUserWithEmailAndPassword(auth, email, password)
