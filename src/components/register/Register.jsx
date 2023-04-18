@@ -1,5 +1,10 @@
 import React, { useState } from "react";
-import { createUserWithEmailAndPassword, getAuth, sendEmailVerification } from "firebase/auth";
+import {
+  createUserWithEmailAndPassword,
+  getAuth,
+  sendEmailVerification,
+  updateProfile,
+} from "firebase/auth";
 import app from "../../firebase.config";
 import { Link } from "react-router-dom";
 import { Alert } from "bootstrap";
@@ -23,28 +28,26 @@ const Register = () => {
     setError("");
     const password = event.target.password.value;
     const email = event.target.email.value;
+    const name = event.target.name.value;
 
+    console.log(name, email, password);
 
-
-    if (! /(?=.*[A-Z])/.test(password)) {
+    if (!/(?=.*[A-Z])/.test(password)) {
       setError("please add at least one upper case");
       return;
-    } 
-    
-    else if (! /(?=.*[0-9].*[0-9])/.test(password)) {
+    } else if (!/(?=.*[0-9].*[0-9])/.test(password)) {
       setError("please add at least 2 digit");
       return;
-    }
-    else if (password.length<6){
-      setError('password should be at least 8 character')
+    } else if (password.length < 6) {
+      setError("password should be at least 8 character");
       return;
     }
 
-    
     createUserWithEmailAndPassword(auth, email, password)
       .then((result) => {
         const loggedUser = result.user;
-        emailVerification(result.user)
+        emailVerification(result.user);
+        updateUserData(result.user, name)
         setSuccess("user has been created successfully");
         setError("");
         event.target.reset();
@@ -55,18 +58,37 @@ const Register = () => {
         setError(error.message);
       });
   };
-  const emailVerification = user =>{
+  const emailVerification = (user) => {
     sendEmailVerification(user)
-    .then(result =>{
-      alert('please verify your email address')
+    .then((result) => {
+      alert("please verify your email address");
+    });
+  };
+  const updateUserData = (user, name) => {
+    updateProfile(user, {
+      displayName: name,
     })
-  }
-
+    .then(()=>{
+      console.log('user name updated')
+    })
+    .catch(error=>{
+      setError(error.message)
+    })
+  };
 
   return (
     <div className="w-50 mx-auto ">
       <h2>Please register</h2>
       <form onSubmit={handleSubmit}>
+        <input
+          className="w-50 mb-4 ps-2"
+          type="text"
+          name="name"
+          id="name"
+          placeholder="Your name please"
+          required
+        />
+        <br />
         <input
           className="w-50 mb-4 ps-2"
           onChange={handleEmail}
@@ -92,7 +114,11 @@ const Register = () => {
         <br />
         <p className="text-success">{success}</p>
       </form>
-      <p><small>Already have an account ??? please <Link to='/login'>Login</Link> </small></p>
+      <p>
+        <small>
+          Already have an account ??? please <Link to="/login">Login</Link>{" "}
+        </small>
+      </p>
     </div>
   );
 };
