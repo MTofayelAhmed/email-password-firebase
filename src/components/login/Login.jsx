@@ -1,9 +1,11 @@
-import { getAuth, signInWithEmailAndPassword } from "firebase/auth";
-import React, { useState } from "react";
+import { getAuth, sendPasswordResetEmail, signInWithEmailAndPassword } from "firebase/auth";
+import React, { useRef, useState } from "react";
 import app from "../../firebase.config";
 import { Link } from "react-router-dom";
 const auth = getAuth(app);
 const Login = () => {
+
+  const emailRef = useRef()
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const handleLoginSubmit = (event) => {
@@ -16,10 +18,10 @@ const Login = () => {
 
     signInWithEmailAndPassword(auth, email, password)
       .then((result) => {
-        const user = result.user;
-        console.log(user)
+        const loggedUser = result.loggedUser;
+        console.log( loggedUser)
         setSuccess("user login successful");
-        setError("");
+        setError('');
       })
       .catch((error) => {
         // const error = error.message;
@@ -28,6 +30,25 @@ const Login = () => {
 
     console.log(email, password);
   };
+
+
+  const handleResetPassword = event =>{
+const email = emailRef.current.value;
+if(!email){
+  alert("please enter an email")
+  return
+}
+sendPasswordResetEmail(auth, email)
+.then(() =>{
+alert('please check your email')
+})
+.catch(error=>{
+  console.log(error)
+})
+console.log(email);
+  }
+
+
   return (
     <div className=" w-50 mx-auto">
       <h2>Please Login</h2>
@@ -38,6 +59,7 @@ const Login = () => {
           </label>
           <input
             type="email"
+            ref={emailRef}
             name="email"
             className="form-control"
             id="email"
@@ -67,6 +89,7 @@ const Login = () => {
           Submit
         </button>
       </form>
+      <p><small>forget password ?? please <button onClick={handleResetPassword} className="btn btn-link ">Reset password</button> </small></p>
       <p className="text-danger">{error}</p>
       <p className="text-success">{success}</p>
       <p><small>new to this website ?? please <Link to='/register'>Register</Link></small></p>

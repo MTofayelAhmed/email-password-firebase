@@ -8,6 +8,7 @@ const RegisterRBS = () => {
 const email = event.target.email.value;
 const password = event.target.password.value;
 console.log(email, password)
+
   }
   return (
     <div className="w-50 mx-auto mb-5">
